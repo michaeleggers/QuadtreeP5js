@@ -1,3 +1,18 @@
+class Ball {
+  constructor(radius, pos, velocity) {
+    this.radius = radius;
+    this.pos = pos;
+    this.velocity =  velocity;
+  }
+
+  draw() {
+    fill('red')
+    stroke('black')
+    strokeWeight(1)
+    circle(this.pos.x, this.pos.y, this.radius*2.0)
+  }
+}
+
 class LineSegment {
   constructor(v1, v2) {
     this.v1 = v1;
@@ -262,22 +277,40 @@ let mouseStateType = {
 let mouseState;
 let mouseX1;
 let mouseY1;
+let ModeType = {
+  placeWall: 0,
+  spawnBall: 1
+};
+let currentMode;
+let toggleModeButton;
+let balls;
 
 function checkMouseState() {
-  if (mouseState === mouseStateType.idle) {
-    //console.log('idle -> mouseClicked')
-    mouseState = mouseStateType.clickedOnce;
-    mouseX1 = mouseX;
-    mouseY1 = mouseY;
+  if (currentMode === ModeType.placeWall) {
+    if (mouseState === mouseStateType.idle) {
+      //console.log('idle -> mouseClicked')
+      mouseState = mouseStateType.clickedOnce;
+      mouseX1 = mouseX;
+      mouseY1 = mouseY;
+    }
+    else if (mouseState === mouseStateType.clickedOnce) {
+      //console.log('clickedOnce -> idle')
+      mouseState = mouseStateType.idle;
+      qt.insert(
+        new LineSegment(
+          createVector(mouseX1, mouseY1), createVector(mouseX, mouseY)), 10
+      );
+    }
   }
-  else if (mouseState === mouseStateType.clickedOnce) {
-    //console.log('clickedOnce -> idle')
-    mouseState = mouseStateType.idle;
-    qt.insert(
-      new LineSegment(
-        createVector(mouseX1, mouseY1), createVector(mouseX, mouseY)), 10
-    );
+  else if (currentMode === ModeType.spawnBall) {
+    balls.push(new Ball(5.0, createVector(mouseX, mouseY), createVector(10, 10)))
   }
+}
+
+function drawBalls() {
+  balls.forEach((ball) => {
+    ball.draw()
+  })
 }
 
 function setup() {
@@ -301,6 +334,25 @@ function setup() {
     new LineSegment(createVector(0, height), createVector(0, 0)),
     3
   );
+
+  currentMode = ModeType.placeWall
+
+  toggleModeButton = createButton('spawn ball')
+  toggleModeButton.position(0, 0)
+  toggleModeButton.mousePressed(toggleMode)
+
+  balls = []
+}
+
+function toggleMode() {
+  if (currentMode === ModeType.placeWall) {
+    currentMode = ModeType.spawnBall
+    toggleModeButton.html('place wall')
+  }
+  else if (currentMode === ModeType.spawnBall) {
+    currentMode = ModeType.placeWall
+    toggleModeButton.html('spawn ball')
+  }
 }
 
 function preload() {
@@ -315,9 +367,15 @@ function draw() {
   stroke(0, 0, 0);
   strokeWeight(5);
   background(220);
-  if (mouseState === mouseStateType.clickedOnce) {
-    drawLinePreview();
+
+  if (currentMode === ModeType.placeWall) {
+    if (mouseState === mouseStateType.clickedOnce) {
+      drawLinePreview();
+    }
   }
+
+
  // level.draw();
+  drawBalls();
   qt.draw();
 }
