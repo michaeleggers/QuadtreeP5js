@@ -11,14 +11,45 @@ class LineSegment {
   }
 }
 
+class Ball {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+    this.velocity = p5.Vector.random2D();
+  }
+
+  update() {
+    this.x += this.velocity.x;
+    this.y += this.velocity.y;
+  }
+
+  draw() {
+    circle(this.x, this.y, 10);
+  }
+}
+
 class Level {
   constructor(lineSegments) {
     this.lineSegments = lineSegments;
+    this.balls = []
   }
   
+  addBall(ball) {
+    this.balls.push(ball)
+  }
+
+  update() {
+    this.balls.forEach((ball) => {
+      ball.update()
+    })
+  }
+
   draw() {
     this.lineSegments.forEach((segment) => {
       segment.draw();
+    })
+    this.balls.forEach((ball) => {
+      ball.draw()
     })
   }
 }
@@ -280,7 +311,7 @@ function checkMouseState() {
     );
   }
   else if (mouseState === mouseStateType.placeBall) {
-    console.log("Creating ball...")
+    level.addBall(new Ball(mouseX, mouseY));
   }
 }
 
@@ -333,6 +364,7 @@ function draw() {
   if (mouseState === mouseStateType.clickedOnce) {
     drawLinePreview();
   }
- // level.draw();
+  level.update();
+  level.draw();
   qt.draw();
 }
