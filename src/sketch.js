@@ -258,6 +258,7 @@ let cnv;
 let mouseStateType = {
   idle: 0,
   clickedOnce: 1,
+  placeBall: 2
 } 
 let mouseState;
 let mouseX1;
@@ -277,6 +278,20 @@ function checkMouseState() {
       new LineSegment(
         createVector(mouseX1, mouseY1), createVector(mouseX, mouseY)), 10
     );
+  }
+  else if (mouseState === mouseStateType.placeBall) {
+    console.log("Creating ball...")
+  }
+}
+
+function keyPressed() {
+  if (keyCode === 32) { // 32 => Spacebar
+    if (mouseState === mouseStateType.placeBall) {
+      mouseState = mouseStateType.idle
+    }
+    else {
+      mouseState = mouseStateType.placeBall;
+    }
   }
 }
 
